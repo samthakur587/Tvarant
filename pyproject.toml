@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61", "wheel", "torch>=2.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "torch-tvarant"
+version = "0.1.0"
+description = "PyTorch device backend for the Tvarant RISC-V SIMT GPGPU"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["torch>=2.1"]
+
+[project.entry-points."torch.backends"]
+torch_tvarant = "torch_tvarant:_autoload"
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
