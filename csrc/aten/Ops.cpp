@@ -282,18 +282,18 @@ at::Tensor& fill__scalar(at::Tensor& self, const at::Scalar& value) {
 
 at::Tensor add_tensor(
     const at::Tensor& self, const at::Tensor& other, const at::Scalar& alpha) {
-  check_fp32(self, "add");
-  check_fp32(other, "add");
-  auto out_sizes = at::infer_size(self.sizes(), other.sizes());
-  auto a = self.expand(out_sizes).contiguous();
-  auto b = other.expand(out_sizes).contiguous();
-  auto out = at::empty(out_sizes, self.options());
+  auto self_f = ensure_fp32(self, "add");
+  auto other_f = ensure_fp32(other, "add");
+  auto out_sizes = at::infer_size(self_f.sizes(), other_f.sizes());
+  auto a = self_f.expand(out_sizes).contiguous();
+  auto b = other_f.expand(out_sizes).contiguous();
+  auto out = at::empty(out_sizes, self_f.options());
   ::tvarant::LaunchParams p;
   p.kernel = "add_kernel";
   p.src0 = a.data_ptr();
   p.src1 = b.data_ptr();
   p.dst = out.data_ptr();
-  p.alpha = alpha.toFloat();
+  p.alpha = static_cast<float>(alpha.toDouble());
   p.numel = out.numel();
   ::tvarant::runtime().launch(p);
   return out;
@@ -310,12 +310,12 @@ at::Tensor& add_out(
 }
 
 at::Tensor mul_tensor(const at::Tensor& self, const at::Tensor& other) {
-  check_fp32(self, "mul");
-  check_fp32(other, "mul");
-  auto out_sizes = at::infer_size(self.sizes(), other.sizes());
-  auto a = self.expand(out_sizes).contiguous();
-  auto b = other.expand(out_sizes).contiguous();
-  auto out = at::empty(out_sizes, self.options());
+  auto self_f = ensure_fp32(self, "mul");
+  auto other_f = ensure_fp32(other, "mul");
+  auto out_sizes = at::infer_size(self_f.sizes(), other_f.sizes());
+  auto a = self_f.expand(out_sizes).contiguous();
+  auto b = other_f.expand(out_sizes).contiguous();
+  auto out = at::empty(out_sizes, self_f.options());
   ::tvarant::LaunchParams p;
   p.kernel = "mul_kernel";
   p.src0 = a.data_ptr();

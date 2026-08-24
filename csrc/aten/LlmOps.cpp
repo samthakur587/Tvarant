@@ -39,14 +39,13 @@ at::Tensor& silu_out(const at::Tensor& self, at::Tensor& out) {
 }
 
 at::Tensor mul_scalar(const at::Tensor& self, const at::Scalar& other) {
-  check_fp32(self, "mul");
-  auto in = self.contiguous();
+  auto in = ensure_fp32(self, "mul").contiguous();
   auto out = at::empty(in.sizes(), in.options());
   LaunchParams p;
   p.kernel = "scale_kernel";
   p.src0 = in.data_ptr();
   p.dst = out.data_ptr();
-  p.scalar = other.toFloat();
+  p.scalar = static_cast<float>(other.toDouble());
   p.numel = out.numel();
   ::tvarant::runtime().launch(p);
   return out;
@@ -54,14 +53,13 @@ at::Tensor mul_scalar(const at::Tensor& self, const at::Scalar& other) {
 
 at::Tensor add_scalar(
     const at::Tensor& self, const at::Scalar& other, const at::Scalar& alpha) {
-  check_fp32(self, "add");
-  auto in = self.contiguous();
+  auto in = ensure_fp32(self, "add").contiguous();
   auto out = at::empty(in.sizes(), in.options());
   LaunchParams p;
   p.kernel = "add_scalar_kernel";
   p.src0 = in.data_ptr();
   p.dst = out.data_ptr();
-  p.scalar = other.toFloat() * alpha.toFloat();
+  p.scalar = static_cast<float>(other.toDouble() * alpha.toDouble());
   p.numel = out.numel();
   ::tvarant::runtime().launch(p);
   return out;

@@ -63,10 +63,26 @@ def _norm(node: torch.fx.Node) -> str:
 
 
 def _aten_op(node: torch.fx.Node) -> str:
+    """Best-effort ATen / builtin op name for an FX call_function node."""
+    if node.op == "call_method":
+        return str(node.target)
+    if node.op != "call_function":
+        return ""
+    target = node.target
+    # Prefer stable name attrs (torch 2.x builtins / OpOverloads).
+    for attr in ("__name__", "name", "_name"):
+        name = getattr(target, attr, None)
+        if isinstance(name, str) and name:
+            name = name.replace("aten::", "").replace("aten.", "")
+            return name.split(".")[0]
     s = _norm(node)
     if not s:
         return ""
     s = s.replace("aten::", "").replace("aten.", "")
+    # Fallback: "<built-in function linear>" / "<function relu at 0x...>"
+    if "function " in s:
+        s = s.split("function ", 1)[1]
+        s = s.split(" at ", 1)[0].strip("<> ")
     return s.split(".")[0]
 
 

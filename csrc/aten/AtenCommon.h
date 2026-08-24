@@ -15,6 +15,19 @@ inline void check_fp32(const at::Tensor& t, const char* op) {
       t.scalar_type());
 }
 
+// Float32-only device: quietly downcast float64 (common when Python floats
+// promote) so mul/add with bare scalars keep working.
+inline at::Tensor ensure_fp32(const at::Tensor& t, const char* op) {
+  if (t.scalar_type() == at::kFloat) {
+    return t;
+  }
+  if (t.scalar_type() == at::kDouble) {
+    return t.to(at::kFloat);
+  }
+  check_fp32(t, op);
+  return t;
+}
+
 // C[m,n] = act(alpha * A[m,k] @ B + beta * bias[n])
 // B is [k,n] if trans_b is false, else [n,k].
 inline at::Tensor gemm_bias_act(
