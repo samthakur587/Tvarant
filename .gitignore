@@ -19,3 +19,4 @@ third_party/winsdk/
 third_party/pylibs/
 csrc/compat/
 .DS_Store
+site/

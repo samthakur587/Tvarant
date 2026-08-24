@@ -1,9 +1,22 @@
 # torch_tvarant
 
-Out-of-tree PyTorch backend that adds `torch.device("tvarant")` for the Tvarant
-RISC-V SIMT GPGPU (Xilinx Alveo U55C). Develop on a CPU simulator; the same
-Python API switches to the OpenCL → POCL → libtvarant stack when the board is
-available.
+[![CI](https://github.com/samthakur587/Tvarant/actions/workflows/ci.yml/badge.svg)](https://github.com/samthakur587/Tvarant/actions/workflows/ci.yml)
+[![Docs](https://github.com/samthakur587/Tvarant/actions/workflows/docs.yml/badge.svg)](https://github.com/samthakur587/Tvarant/actions/workflows/docs.yml)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.1+-ee4c2c.svg)](https://pytorch.org/)
+
+**Open-source PyTorch backend for the Tvarant RISC-V SIMT GPGPU** (Xilinx Alveo U55C).
+
+Develop on a CPU simulator, deploy through OpenCL → POCL → libtvarant when hardware
+is available. Includes a JIT graph compiler for LLM inference fusion.
+
+📖 **[Documentation](https://samthakur587.github.io/Tvarant/)** ·
+🐛 [Issues](https://github.com/samthakur587/Tvarant/issues) ·
+🗺️ [Roadmap](docs/roadmap.md) ·
+🤝 [Contributing](CONTRIBUTING.md)
+
+## Quick start
 
 ```python
 import torch
@@ -15,23 +28,27 @@ y = torch.nn.functional.relu(x @ w)
 assert y.device.type == "tvarant"
 ```
 
-## Install (CPU simulator)
-
-Requires PyTorch 2.1+ and a C++17 compiler (MSVC on Windows, GCC/Clang on Linux).
-
 ```bash
 pip install torch pytest ninja
 pip install -e .
 pytest tests/ -v
 ```
 
-On Windows, run from an **x64 Native Tools** prompt (or after `vcvars64.bat`).
+See [Getting Started](docs/getting-started.md) for full install instructions.
 
-## JIT compiler (LLM inference)
+## Features
 
-The backend includes a graph compiler that fuses kernel launches for transformer
-workloads. On the CPU simulator it runs fused host loops; on OpenCL it emits and
-caches specialized kernels via `clBuildProgram`.
+| Feature | Description |
+|---|---|
+| **Device backend** | `torch.device("tvarant")` via PrivateUse1 |
+| **CPU simulator** | Host-accessible memory for fast iteration |
+| **OpenCL runtime** | Same API on POCL / FPGA path |
+| **LLM ops** | `silu`, `softmax`, `bmm`, `layer_norm`, `embedding`, … |
+| **Fused GEMM** | Single kernel for matmul + bias + relu/silu |
+| **JIT compiler** | FX fusion + OpenCL kernel codegen for pointwise chains |
+| **torch.compile** | Registered `backend="tvarant"` |
+
+## JIT compiler
 
 ```python
 import torch
@@ -39,54 +56,63 @@ import torch.nn as nn
 import torch_tvarant
 
 model = nn.Sequential(nn.Linear(768, 768), nn.ReLU()).to("tvarant")
-
-# FX trace + fuse (recommended for nn.Sequential / decoder blocks)
 compiled = torch_tvarant.compiler.compile(model)
 y = compiled(torch.randn(4, 768, device="tvarant"))
-
-# Or use torch.compile with the registered backend
-compiled = torch.compile(model, backend="tvarant")
 ```
 
-**What gets fused**
-
-| Pattern | Fused into |
-|---|---|
-| `linear` / `addmm` / `mm` + bias + `relu`/`silu` | Single `gemm_bias_act` kernel |
-| Pointwise chains (`relu`, `silu`, `add`, `mul`, …) | One JIT pointwise kernel |
-
-Direct fused ops are also exposed:
-
-```python
-torch.ops.tvarant.linear_act(x, weight, bias, "silu", trans_b=True)
-torch.ops.tvarant.pointwise(inputs, ops, a, b, input_ids, alphas, consts)
-```
-
-## Supported ops
-
-Core ATen ops on `tvarant`: `empty`, `copy`, `fill`, `add`, `mul`, `relu`,
-`mm`, `addmm`, `view`, `linear`.
-
-LLM-oriented ops: `silu`, `softmax`, `matmul`, `bmm`, `layer_norm`, `embedding`,
-`mul.Scalar`, `add.Scalar`.
-
-Everything else falls back to CPU via the PrivateUse1 fallback handler.
+Fuses `linear + relu/silu` into one kernel and collapses pointwise chains.
+Details: [JIT Compiler docs](docs/jit-compiler.md).
 
 ## FPGA / OpenCL
-
-Build with OpenCL support and select the OpenCL runtime at launch:
 
 ```bash
 USE_OPENCL=1 pip install -e .
 TVARANT_BACKEND=opencl python your_script.py
 ```
 
-Environment variables:
+See [FPGA / OpenCL docs](docs/fpga-opencl.md).
 
-| Variable | Description |
-|---|---|
-| `TVARANT_BACKEND` | `sim` (default) or `opencl` |
-| `TVARANT_OPENCL_PLATFORM` | Substring match for OpenCL platform name |
-| `TVARANT_KERNEL_DIR` | Directory of `.cl` kernel sources (defaults to embedded kernels) |
+## Project structure
 
-OpenCL kernel sources live in `csrc/kernels/opencl/`.
+```
+csrc/aten/          ATen op registrations
+csrc/jit/           Pointwise JIT IR + OpenCL codegen
+csrc/kernels/       Host + OpenCL kernels
+csrc/runtime/       Sim and OpenCL device runtime
+torch_tvarant/      Python package + graph compiler
+tests/              Pytest suite
+docs/               MkDocs documentation
+```
+
+## Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+1. Fork the repo
+2. Create a feature branch
+3. Add tests
+4. Open a pull request
+
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Roadmap
+
+- Fused attention kernel ([#1](https://github.com/samthakur587/Tvarant/issues/1))
+- KV-cache + decode GEMM ([#2](https://github.com/samthakur587/Tvarant/issues/2))
+- RMSNorm, RoPE, SwiGLU ([#3](https://github.com/samthakur587/Tvarant/issues/3))
+- Shape-specialized GEMM JIT ([#4](https://github.com/samthakur587/Tvarant/issues/4))
+
+Full roadmap: [docs/roadmap.md](docs/roadmap.md)
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE).
+
+## Security
+
+Report vulnerabilities via [GitHub Security Advisories](https://github.com/samthakur587/Tvarant/security/advisories/new).
+See [SECURITY.md](SECURITY.md).
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).

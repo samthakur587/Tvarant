@@ -1,0 +1,9 @@
+name: Config.yml
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://samthakur587.github.io/Tvarant/
+    about: Read the project documentation
+  - name: Discussions
+    url: https://github.com/samthakur587/Tvarant/discussions
+    about: Ask questions and share ideas

@@ -1,0 +1,56 @@
+site_name: torch_tvarant
+site_description: PyTorch backend for the Tvarant RISC-V SIMT GPGPU
+site_url: https://samthakur587.github.io/Tvarant/
+repo_url: https://github.com/samthakur587/Tvarant
+repo_name: samthakur587/Tvarant
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - content.code.copy
+    - search.suggest
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Architecture: architecture.md
+  - JIT Compiler: jit-compiler.md
+  - Operations: operations.md
+  - FPGA / OpenCL: fpga-opencl.md
+  - Roadmap: roadmap.md
+  - Contributing: contributing.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/samthakur587/Tvarant
+
+copyright: Copyright &copy; 2026 Tvarant Contributors

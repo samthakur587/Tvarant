@@ -1,0 +1,72 @@
+name: Bug report
+description: Report incorrect behavior or a crash
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please include as much detail as possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Minimal code snippet or commands to reproduce the issue.
+      placeholder: |
+        ```python
+        import torch
+        import torch_tvarant
+        ...
+        ```
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: torch_tvarant version
+      placeholder: e.g. 0.1.0 or git commit SHA
+    validations:
+      required: true
+
+  - type: input
+    id: torch-version
+    attributes:
+      label: PyTorch version
+      placeholder: e.g. 2.4.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Runtime backend
+      options:
+        - sim (CPU simulator)
+        - opencl
+        - fpga
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: OS / platform
+      placeholder: e.g. Ubuntu 22.04, Windows 11 + MSVC
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / stack trace
+      render: shell

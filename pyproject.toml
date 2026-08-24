@@ -5,17 +5,68 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "torch-tvarant"
 version = "0.1.0"
-description = "PyTorch device backend for the Tvarant RISC-V SIMT GPGPU"
+description = "PyTorch device backend for the Tvarant RISC-V SIMT GPGPU with JIT LLM inference"
 readme = "README.md"
+license = "Apache-2.0"
 requires-python = ">=3.9"
+authors = [{ name = "Tvarant Contributors" }]
+keywords = [
+    "pytorch",
+    "fpga",
+    "opencl",
+    "gpgpu",
+    "llm",
+    "inference",
+    "jit",
+    "accelerator",
+    "risc-v",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: C++",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = ["torch>=2.1"]
+
+[project.urls]
+Homepage = "https://github.com/samthakur587/Tvarant"
+Documentation = "https://samthakur587.github.io/Tvarant/"
+Repository = "https://github.com/samthakur587/Tvarant"
+Issues = "https://github.com/samthakur587/Tvarant/issues"
+Changelog = "https://github.com/samthakur587/Tvarant/blob/main/CHANGELOG.md"
 
 [project.entry-points."torch.backends"]
 torch_tvarant = "torch_tvarant:_autoload"
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest>=7", "ruff>=0.4", "build>=1.0"]
+docs = ["mkdocs>=1.5", "mkdocs-material>=9"]
+all = ["pytest>=7", "ruff>=0.4", "build>=1.0", "mkdocs>=1.5", "mkdocs-material>=9"]
+
+[tool.setuptools.packages.find]
+include = ["torch_tvarant", "torch_tvarant.*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["F401"]
