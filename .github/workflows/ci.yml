@@ -31,11 +31,16 @@ jobs:
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y build-essential
 
-      - name: Install Python dependencies
+      - name: Install PyTorch (CPU)
         run: |
           python -m pip install --upgrade pip wheel setuptools ninja
-          pip install torch
-          pip install -e ".[dev]" --no-build-isolation
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -c "import torch; print('torch', torch.__version__)"
+
+      - name: Build and install torch_tvarant
+        run: |
+          pip install pytest
+          pip install -e . --no-build-isolation --no-deps -v
 
       - name: Run tests
         env:
