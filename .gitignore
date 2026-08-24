@@ -1,4 +1,5 @@
 build/
+.env
 dist/
 *.egg-info/
 **/__pycache__/
@@ -17,3 +18,4 @@ torch_tvarant/_C*
 third_party/winsdk/
 third_party/pylibs/
 csrc/compat/
+.DS_Store
