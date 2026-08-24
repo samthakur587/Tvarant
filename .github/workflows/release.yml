@@ -26,13 +26,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel setuptools ninja build
           pip install torch
-          pip install -e .
+          pip install -e ".[dev]" --no-build-isolation
 
       - name: Run tests before release
         env:
           TORCH_DEVICE_BACKEND_AUTOLOAD: "0"
         run: |
-          pip install pytest
           pytest tests/ -v --ignore=tests/test_opencl.py
 
       - name: Build sdist and wheel
