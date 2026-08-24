@@ -27,13 +27,13 @@ at::Tensor silu(const at::Tensor& self) {
 }
 
 at::Tensor& silu_(at::Tensor& self) {
-  auto out = silu(self);
+  auto out = ::tvarant::ops::silu(self);
   self.copy_(out);
   return self;
 }
 
 at::Tensor& silu_out(const at::Tensor& self, at::Tensor& out) {
-  auto tmp = silu(self);
+  auto tmp = ::tvarant::ops::silu(self);
   out.copy_(tmp);
   return out;
 }
@@ -103,7 +103,7 @@ at::Tensor softmax_int(
   TORCH_CHECK(
       !dtype.has_value() || dtype.value() == at::kFloat,
       "Tvarant softmax supports float32 only");
-  return _softmax(self, dim, false);
+  return ::tvarant::ops::_softmax(self, dim, false);
 }
 
 at::Tensor matmul(const at::Tensor& self, const at::Tensor& other) {
@@ -146,7 +146,7 @@ at::Tensor matmul(const at::Tensor& self, const at::Tensor& other) {
 
 at::Tensor bmm(const at::Tensor& self, const at::Tensor& mat2) {
   TORCH_CHECK(self.dim() == 3 && mat2.dim() == 3, "bmm(): tensors must be 3D");
-  return matmul(self, mat2);
+  return ::tvarant::ops::matmul(self, mat2);
 }
 
 at::Tensor linear(

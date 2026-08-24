@@ -29,7 +29,7 @@ jobs:
           cache: pip
 
       - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y build-essential
+        run: sudo apt-get update && sudo apt-get install -y build-essential g++
 
       - name: Install PyTorch (CPU)
         run: |
@@ -38,9 +38,12 @@ jobs:
           python -c "import torch; print('torch', torch.__version__)"
 
       - name: Build and install torch_tvarant
+        env:
+          MAX_JOBS: "2"
+          CXX: g++
         run: |
-          pip install pytest
-          pip install -e . --no-build-isolation --no-deps -v
+          pip install pytest numpy
+          pip install . --no-build-isolation --no-deps -v
 
       - name: Run tests
         env:

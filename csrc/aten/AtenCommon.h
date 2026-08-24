@@ -50,6 +50,7 @@ inline at::Tensor gemm_bias_act(
     bias_ptr = bias_c.data_ptr();
     beta_use = beta;
   }
+  auto out = at::empty({m, n}, ac.options());
   if (m == 0 || n == 0) {
     return out;
   }
