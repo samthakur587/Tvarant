@@ -44,11 +44,14 @@ jobs:
         run: |
           pip install pytest numpy
           pip install . --no-build-isolation --no-deps -v
+          python -c "import torch_tvarant; print('backend', torch_tvarant._C.backend())"
 
       - name: Run tests
         env:
           TORCH_DEVICE_BACKEND_AUTOLOAD: "0"
-        run: pytest tests/ -v --ignore=tests/test_opencl.py
+        run: |
+          python -c "import torch_tvarant, inspect; print(inspect.getfile(torch_tvarant))"
+          pytest tests/ -v --ignore=tests/test_opencl.py
 
   lint:
     name: Lint Python

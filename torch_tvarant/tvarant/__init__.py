@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import importlib
 from typing import Union
 
 import torch
 
-from .. import _C
+# Import the extension module directly so this package can load while
+# torch_tvarant/__init__.py is still initializing (avoids circular import).
+_C = importlib.import_module("torch_tvarant._C")
 
 _initialized = False
 

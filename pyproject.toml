@@ -58,7 +58,8 @@ include = ["torch_tvarant", "torch_tvarant.*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+# Do not set pythonpath=["."] — that prefers the source tree over the
+# installed package and hides the built torch_tvarant._C extension.
 
 [tool.ruff]
 target-version = "py39"
