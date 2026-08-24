@@ -1,5 +1,7 @@
 #pragma once
 
+#include "jit/Jit.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <string>
@@ -11,18 +13,25 @@ constexpr int kDeviceCount = 1;
 
 enum class Backend { Sim, OpenCL };
 
+// act: 0 = none, 1 = relu, 2 = silu
 struct LaunchParams {
   const char* kernel = nullptr;
   void* dst = nullptr;
+  void* aux0 = nullptr;
+  void* aux1 = nullptr;
   const void* src0 = nullptr;
   const void* src1 = nullptr;
+  const void* src2 = nullptr;
   int64_t numel = 0;
   int64_t m = 0;
   int64_t n = 0;
   int64_t k = 0;
+  int64_t batch = 1;
   float alpha = 1.f;
   float beta = 0.f;
   float scalar = 0.f;
+  int act = 0;
+  bool trans_b = false;
 };
 
 class TvarantRuntime {
@@ -42,6 +51,12 @@ class TvarantRuntime {
   virtual void copy_d2d(void* dst, const void* src, size_t n) = 0;
 
   virtual void launch(const LaunchParams& params) = 0;
+  virtual void launch_pointwise(
+      const jit::PointwiseProgram& prog,
+      const void* const* inputs,
+      int n_inputs,
+      void* dst,
+      int64_t numel) = 0;
   virtual void synchronize() = 0;
 };
 

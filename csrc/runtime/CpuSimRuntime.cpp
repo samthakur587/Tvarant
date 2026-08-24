@@ -3,12 +3,14 @@
 
 #include <c10/util/Exception.h>
 
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <unordered_set>
+#include <vector>
 
 #ifdef _WIN32
 #include <malloc.h>
@@ -128,19 +130,88 @@ class CpuSimRuntime final : public TvarantRuntime {
     } else if (name == "relu_kernel") {
       host::relu_f32(
           static_cast<const float*>(p.src0), static_cast<float*>(p.dst), p.numel);
-    } else if (name == "gemm_kernel") {
-      host::gemm_f32(
+    } else if (name == "silu_kernel") {
+      host::silu_f32(
+          static_cast<const float*>(p.src0), static_cast<float*>(p.dst), p.numel);
+    } else if (name == "scale_kernel") {
+      host::scale_f32(
+          static_cast<const float*>(p.src0),
+          static_cast<float*>(p.dst),
+          p.numel,
+          p.scalar);
+    } else if (name == "add_scalar_kernel") {
+      host::add_scalar_f32(
+          static_cast<const float*>(p.src0),
+          static_cast<float*>(p.dst),
+          p.numel,
+          p.scalar);
+    } else if (name == "gemm_kernel" || name == "gemm_bias_act_kernel") {
+      host::gemm_bias_act_f32(
           static_cast<const float*>(p.src0),
           static_cast<const float*>(p.src1),
+          static_cast<const float*>(p.src2),
           static_cast<float*>(p.dst),
           p.m,
           p.n,
           p.k,
           p.alpha,
-          p.beta);
+          p.beta,
+          p.act,
+          p.trans_b);
+    } else if (name == "bmm_kernel") {
+      host::bmm_f32(
+          static_cast<const float*>(p.src0),
+          static_cast<const float*>(p.src1),
+          static_cast<float*>(p.dst),
+          p.batch,
+          p.m,
+          p.n,
+          p.k,
+          p.trans_b);
+    } else if (name == "softmax_kernel") {
+      host::softmax_f32(
+          static_cast<const float*>(p.src0),
+          static_cast<float*>(p.dst),
+          p.m,
+          p.n,
+          p.k);
+    } else if (name == "layernorm_kernel") {
+      host::layer_norm_f32(
+          static_cast<const float*>(p.src0),
+          static_cast<const float*>(p.src1),
+          static_cast<const float*>(p.src2),
+          static_cast<float*>(p.dst),
+          static_cast<float*>(p.aux0),
+          static_cast<float*>(p.aux1),
+          p.m,
+          p.n,
+          p.scalar);
+    } else if (name == "embedding_kernel") {
+      host::embedding_f32(
+          static_cast<const float*>(p.src0),
+          static_cast<const int32_t*>(p.src1),
+          static_cast<float*>(p.dst),
+          p.numel,
+          p.n,
+          p.k);
     } else {
       TORCH_CHECK(false, "Unknown Tvarant sim kernel: ", name);
     }
+  }
+
+  void launch_pointwise(
+      const jit::PointwiseProgram& prog,
+      const void* const* inputs,
+      int n_inputs,
+      void* dst,
+      int64_t numel) override {
+    TORCH_CHECK(n_inputs == prog.n_inputs, "pointwise input count mismatch");
+    std::vector<const float*> ins(static_cast<size_t>(n_inputs));
+    for (int i = 0; i < n_inputs; ++i) {
+      ins[static_cast<size_t>(i)] = static_cast<const float*>(inputs[i]);
+    }
+    jit::run_pointwise_host(
+        prog, ins.data(), static_cast<float*>(dst), numel);
   }
 
   void synchronize() override {}

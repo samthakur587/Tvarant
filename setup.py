@@ -133,10 +133,13 @@ def main():
         "csrc/runtime/Hooks.cpp",
         "csrc/runtime/Generator.cpp",
         "csrc/aten/Ops.cpp",
+        "csrc/aten/LlmOps.cpp",
+        "csrc/aten/CustomOps.cpp",
+        "csrc/jit/Jit.cpp",
         "csrc/kernels/host/HostKernels.cpp",
     ]
 
-    include_dirs = [str(CSRC), str(CSRC / "runtime"), str(CSRC / "kernels" / "host")]
+    include_dirs = [str(CSRC), str(CSRC / "runtime"), str(CSRC / "kernels" / "host"), str(CSRC / "jit"), str(CSRC / "aten")]
     compat = write_compat_pyconfig()
     if compat:
         include_dirs.insert(0, compat)
@@ -160,6 +163,7 @@ def main():
         extra_compile_args = [
             "/std:c++17",
             "/EHsc",
+            "/O2",
             "/permissive-",
             "/Zc:__cplusplus",
             "/DNOMINMAX",
@@ -172,7 +176,7 @@ def main():
         if fi.exists():
             extra_compile_args.append(f"/FI{fi}")
     else:
-        extra_compile_args = ["-std=c++17", "-fPIC", "-Wno-unused-parameter"]
+        extra_compile_args = ["-std=c++17", "-fPIC", "-O3", "-Wno-unused-parameter"]
 
     force_opencl = os.environ.get("USE_OPENCL", "").lower() in {"1", "true", "on", "yes"}
     if force_opencl:

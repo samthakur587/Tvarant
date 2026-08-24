@@ -6,6 +6,7 @@ import torch
 
 from . import _C
 from . import tvarant
+from . import compiler
 
 torch.utils.rename_privateuse1_backend("tvarant")
 torch._register_device_module("tvarant", tvarant)
@@ -15,7 +16,7 @@ torch.utils.generate_methods_for_privateuse1_backend(
     for_storage=True,
 )
 
-__all__ = ["tvarant", "_C"]
+__all__ = ["tvarant", "_C", "compiler"]
 __version__ = "0.1.0"
 
 

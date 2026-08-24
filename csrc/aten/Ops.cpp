@@ -1,4 +1,5 @@
 #include "runtime/TvarantRuntime.h"
+#include "aten/AtenCommon.h"
 
 #include <ATen/ATen.h>
 #include <ATen/EmptyTensor.h>
@@ -25,15 +26,6 @@ c10::DispatchKeySet tvarant_keys() {
 
 c10::Allocator* allocator() {
   return at::GetAllocator(at::kPrivateUse1);
-}
-
-void check_fp32(const at::Tensor& t, const char* op) {
-  TORCH_CHECK(
-      t.scalar_type() == at::kFloat,
-      "Tvarant op '",
-      op,
-      "' supports float32 only, got ",
-      t.scalar_type());
 }
 
 at::Tensor as_cpu_view(const at::Tensor& t) {
@@ -375,22 +367,7 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
       self.sizes(),
       " and ",
       mat2.sizes());
-  auto a = self.contiguous();
-  auto b = mat2.contiguous();
-  auto out = at::empty({a.size(0), b.size(1)}, a.options());
-  ::tvarant::LaunchParams p;
-  p.kernel = "gemm_kernel";
-  p.src0 = a.data_ptr();
-  p.src1 = b.data_ptr();
-  p.dst = out.data_ptr();
-  p.m = a.size(0);
-  p.n = b.size(1);
-  p.k = a.size(1);
-  p.alpha = 1.f;
-  p.beta = 0.f;
-  p.numel = out.numel();
-  ::tvarant::runtime().launch(p);
-  return out;
+  return gemm_bias_act(self, mat2, nullptr, 1.f, 0.f, 0, false);
 }
 
 at::Tensor addmm(
@@ -401,23 +378,22 @@ at::Tensor addmm(
     const at::Scalar& alpha) {
   check_fp32(mat1, "addmm");
   check_fp32(mat2, "addmm");
-  auto out = tvarant::ops::mm(mat1, mat2);
-  if (alpha.toFloat() != 1.f) {
-    out = tvarant::ops::mul_tensor(out, at::full({}, alpha, out.options()));
-  }
-  if (beta.toFloat() == 0.f) {
+  const float alpha_f = alpha.toFloat();
+  const float beta_f = beta.toFloat();
+  if (beta_f == 0.f) {
+    auto out = gemm_bias_act(mat1, mat2, nullptr, alpha_f, 0.f, 0, false);
     return out;
   }
-  auto bias = self.to(out.dtype());
-  if (bias.dim() == 1) {
-    bias = bias.unsqueeze(0).expand_as(out);
-  } else {
-    bias = bias.expand_as(out);
+  auto bias = self.to(mat1.dtype());
+  if (bias.dim() == 1 || (bias.dim() == 2 && bias.size(0) == 1)) {
+    return gemm_bias_act(mat1, mat2, &bias, alpha_f, beta_f, 0, false);
   }
-  if (beta.toFloat() != 1.f) {
-    bias = tvarant::ops::mul_tensor(bias.contiguous(), at::full({}, beta, out.options()));
+  auto out = gemm_bias_act(mat1, mat2, nullptr, alpha_f, 0.f, 0, false);
+  auto bias2 = bias.expand_as(out).contiguous();
+  if (beta_f != 1.f) {
+    bias2 = tvarant::ops::mul_tensor(bias2, at::full({}, beta_f, out.options()));
   }
-  return tvarant::ops::add_tensor(bias.contiguous(), out, 1);
+  return tvarant::ops::add_tensor(bias2, out, 1);
 }
 
 void cpu_fallback(const c10::OperatorHandle& op, torch::jit::Stack* stack) {
