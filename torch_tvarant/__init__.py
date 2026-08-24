@@ -5,8 +5,8 @@ from __future__ import annotations
 import torch
 
 from . import _C
-from . import tvarant
 from . import compiler
+from . import tvarant
 
 torch.utils.rename_privateuse1_backend("tvarant")
 torch._register_device_module("tvarant", tvarant)
