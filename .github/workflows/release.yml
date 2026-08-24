@@ -53,6 +53,6 @@ jobs:
           prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') }}
 
       - name: Publish to PyPI
+        # Trusted Publishing (OIDC) — no API token. Requires a PyPI pending/active
+        # publisher for project "torch-tvarant", workflow release.yml, this repo.
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}

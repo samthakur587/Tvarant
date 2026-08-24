@@ -98,9 +98,10 @@ Implement QK^T + softmax + PV in one launch on sim and OpenCL backends.
 1. Update version in `pyproject.toml` and `torch_tvarant/__init__.py`
 2. Move **Unreleased** entries in `CHANGELOG.md` to a new version section
 3. Tag: `git tag v0.2.0 && git push origin v0.2.0`
-4. GitHub Actions builds sdist/wheel and creates a GitHub Release
-5. Optional PyPI publish: set `PYPI_API_TOKEN` repo secret and uncomment
-   the PyPI step in `.github/workflows/release.yml`
+4. GitHub Actions (`.github/workflows/release.yml`) runs tests, builds an sdist,
+   creates a GitHub Release, and publishes to PyPI via **Trusted Publishing**
+   (OIDC). Configure a PyPI publisher for project `torch-tvarant`, workflow
+   `release.yml`, repository `samthakur587/Tvarant` — no API token required.
 
 ## Community
 
