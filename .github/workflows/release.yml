@@ -30,10 +30,14 @@ jobs:
           python -c "import torch; print('torch', torch.__version__)"
           CXX=g++ pip install . --no-build-isolation --no-deps -v
 
+      # Run outside the checkout so the source tree does not shadow site-packages.
       - name: Run tests before release
+        working-directory: ${{ runner.temp }}
         env:
           TORCH_DEVICE_BACKEND_AUTOLOAD: "0"
-        run: pytest tests/ -v --ignore=tests/test_opencl.py
+        run: |
+          pytest "${{ github.workspace }}/tests" -v \
+            --ignore="${{ github.workspace }}/tests/test_opencl.py"
 
       # Ship sdist only: the C++ extension must compile against the user's local
       # torch install. Platform wheels linked to CI torch are not portable.

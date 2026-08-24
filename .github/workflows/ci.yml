@@ -37,6 +37,8 @@ jobs:
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -c "import torch; print('torch', torch.__version__)"
 
+      # Regular (non-editable) install puts _C.so in site-packages. Imports must
+      # not run with the repo checkout as cwd, or the source tree shadows it.
       - name: Build and install torch_tvarant
         env:
           MAX_JOBS: "2"
@@ -44,14 +46,26 @@ jobs:
         run: |
           pip install pytest numpy
           pip install . --no-build-isolation --no-deps -v
-          python -c "import torch_tvarant; print('backend', torch_tvarant._C.backend())"
 
-      - name: Run tests
+      - name: Smoke import installed package
+        working-directory: ${{ runner.temp }}
         env:
           TORCH_DEVICE_BACKEND_AUTOLOAD: "0"
         run: |
-          python -c "import torch_tvarant, inspect; print(inspect.getfile(torch_tvarant))"
-          pytest tests/ -v --ignore=tests/test_opencl.py
+          python - <<'PY'
+          import inspect
+          import torch_tvarant
+          print("torch_tvarant", inspect.getfile(torch_tvarant))
+          print("backend", torch_tvarant._C.backend())
+          PY
+
+      - name: Run tests
+        working-directory: ${{ runner.temp }}
+        env:
+          TORCH_DEVICE_BACKEND_AUTOLOAD: "0"
+        run: |
+          pytest "${{ github.workspace }}/tests" -v \
+            --ignore="${{ github.workspace }}/tests/test_opencl.py"
 
   lint:
     name: Lint Python
