@@ -16,6 +16,7 @@ const at::Generator& get_default_generator(c10::DeviceIndex device_index);
 int tvarant_aten_force_link();
 int tvarant_llm_force_link();
 int tvarant_custom_force_link();
+int tvarant_extended_force_link();
 
 namespace {
 
@@ -23,7 +24,7 @@ int force_link_all() {
   return tvarant::force_link_allocator() + tvarant::force_link_guard() +
       tvarant::force_link_hooks() + tvarant::force_link_generator() +
       tvarant_aten_force_link() + tvarant_llm_force_link() +
-      tvarant_custom_force_link();
+      tvarant_custom_force_link() + tvarant_extended_force_link();
 }
 
 }  // namespace

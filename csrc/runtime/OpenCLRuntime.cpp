@@ -54,6 +54,30 @@ __kernel void silu_kernel(__global const float* in, __global float* out, const i
   const int i = get_global_id(0);
   if (i < n) { const float x = in[i]; out[i] = x / (1.f + exp(-x)); }
 }
+__kernel void neg_kernel(__global const float* in, __global float* out, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) out[i] = -in[i];
+}
+__kernel void abs_kernel(__global const float* in, __global float* out, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) out[i] = fabs(in[i]);
+}
+__kernel void exp_kernel(__global const float* in, __global float* out, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) out[i] = exp(in[i]);
+}
+__kernel void exp2_kernel(__global const float* in, __global float* out, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) out[i] = exp2(in[i]);
+}
+__kernel void sqrt_kernel(__global const float* in, __global float* out, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) out[i] = sqrt(in[i]);
+}
+__kernel void rsqrt_kernel(__global const float* in, __global float* out, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) out[i] = rsqrt(in[i]);
+}
 __kernel void scale_kernel(__global const float* in, __global float* out, const float scale, const int n) {
   const int i = get_global_id(0);
   if (i < n) out[i] = in[i] * scale;
@@ -237,6 +261,12 @@ class OpenCLRuntime final : public TvarantRuntime {
     load("mul_kernel");
     load("relu_kernel");
     load("silu_kernel");
+    load("neg_kernel");
+    load("abs_kernel");
+    load("exp_kernel");
+    load("exp2_kernel");
+    load("sqrt_kernel");
+    load("rsqrt_kernel");
     load("scale_kernel");
     load("add_scalar_kernel");
     load("gemm_kernel");
@@ -390,7 +420,9 @@ class OpenCLRuntime final : public TvarantRuntime {
       set_buf(const_cast<void*>(p.src1));
       set_buf(p.dst);
       set_int(n);
-    } else if (name == "relu_kernel" || name == "silu_kernel") {
+    } else if (name == "relu_kernel" || name == "silu_kernel" || name == "neg_kernel" ||
+               name == "abs_kernel" || name == "exp_kernel" || name == "exp2_kernel" ||
+               name == "sqrt_kernel" || name == "rsqrt_kernel") {
       set_buf(const_cast<void*>(p.src0));
       set_buf(p.dst);
       set_int(n);

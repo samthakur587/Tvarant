@@ -133,6 +133,7 @@ def main():
         "csrc/runtime/Hooks.cpp",
         "csrc/runtime/Generator.cpp",
         "csrc/aten/Ops.cpp",
+        "csrc/aten/ExtendedOps.cpp",
         "csrc/aten/LlmOps.cpp",
         "csrc/aten/CustomOps.cpp",
         "csrc/jit/Jit.cpp",
