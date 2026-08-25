@@ -125,7 +125,7 @@ at::Tensor clone(
         false,
         c10::MemoryFormat::Contiguous);
   }
-  return _copy_from(self, out, false);
+  return ::tvarant::ops::_copy_from(self, out, false);
 }
 
 at::Tensor contiguous(const at::Tensor& self, c10::MemoryFormat memory_format) {
@@ -139,7 +139,7 @@ at::Tensor contiguous(const at::Tensor& self, c10::MemoryFormat memory_format) {
       self.device(),
       false,
       memory_format);
-  return _copy_from(self, out, false);
+  return ::tvarant::ops::_copy_from(self, out, false);
 }
 
 // ---- unary (#25–#27, #29) ----
@@ -165,14 +165,14 @@ at::Tensor neg(const at::Tensor& self) {
 }
 
 at::Tensor& neg_(at::Tensor& self) {
-  auto out = neg(self);
-  _copy_from(out, self, false);
+  auto out = ::tvarant::ops::neg(self);
+  ::tvarant::ops::_copy_from(out, self, false);
   return self;
 }
 
 at::Tensor& neg_out(const at::Tensor& self, at::Tensor& out) {
-  auto tmp = neg(self);
-  _copy_from(tmp, out, false);
+  auto tmp = ::tvarant::ops::neg(self);
+  ::tvarant::ops::_copy_from(tmp, out, false);
   return out;
 }
 
@@ -181,14 +181,14 @@ at::Tensor abs(const at::Tensor& self) {
 }
 
 at::Tensor& abs_(at::Tensor& self) {
-  auto out = abs(self);
-  _copy_from(out, self, false);
+  auto out = ::tvarant::ops::abs(self);
+  ::tvarant::ops::_copy_from(out, self, false);
   return self;
 }
 
 at::Tensor& abs_out(const at::Tensor& self, at::Tensor& out) {
-  auto tmp = abs(self);
-  _copy_from(tmp, out, false);
+  auto tmp = ::tvarant::ops::abs(self);
+  ::tvarant::ops::_copy_from(tmp, out, false);
   return out;
 }
 
@@ -197,14 +197,14 @@ at::Tensor exp(const at::Tensor& self) {
 }
 
 at::Tensor& exp_(at::Tensor& self) {
-  auto out = exp(self);
-  _copy_from(out, self, false);
+  auto out = ::tvarant::ops::exp(self);
+  ::tvarant::ops::_copy_from(out, self, false);
   return self;
 }
 
 at::Tensor& exp_out(const at::Tensor& self, at::Tensor& out) {
-  auto tmp = exp(self);
-  _copy_from(tmp, out, false);
+  auto tmp = ::tvarant::ops::exp(self);
+  ::tvarant::ops::_copy_from(tmp, out, false);
   return out;
 }
 
@@ -213,14 +213,14 @@ at::Tensor exp2(const at::Tensor& self) {
 }
 
 at::Tensor& exp2_(at::Tensor& self) {
-  auto out = exp2(self);
-  _copy_from(out, self, false);
+  auto out = ::tvarant::ops::exp2(self);
+  ::tvarant::ops::_copy_from(out, self, false);
   return self;
 }
 
 at::Tensor& exp2_out(const at::Tensor& self, at::Tensor& out) {
-  auto tmp = exp2(self);
-  _copy_from(tmp, out, false);
+  auto tmp = ::tvarant::ops::exp2(self);
+  ::tvarant::ops::_copy_from(tmp, out, false);
   return out;
 }
 
@@ -229,14 +229,14 @@ at::Tensor sqrt(const at::Tensor& self) {
 }
 
 at::Tensor& sqrt_(at::Tensor& self) {
-  auto out = sqrt(self);
-  _copy_from(out, self, false);
+  auto out = ::tvarant::ops::sqrt(self);
+  ::tvarant::ops::_copy_from(out, self, false);
   return self;
 }
 
 at::Tensor& sqrt_out(const at::Tensor& self, at::Tensor& out) {
-  auto tmp = sqrt(self);
-  _copy_from(tmp, out, false);
+  auto tmp = ::tvarant::ops::sqrt(self);
+  ::tvarant::ops::_copy_from(tmp, out, false);
   return out;
 }
 
@@ -245,14 +245,14 @@ at::Tensor rsqrt(const at::Tensor& self) {
 }
 
 at::Tensor& rsqrt_(at::Tensor& self) {
-  auto out = rsqrt(self);
-  _copy_from(out, self, false);
+  auto out = ::tvarant::ops::rsqrt(self);
+  ::tvarant::ops::_copy_from(out, self, false);
   return self;
 }
 
 at::Tensor& rsqrt_out(const at::Tensor& self, at::Tensor& out) {
-  auto tmp = rsqrt(self);
-  _copy_from(tmp, out, false);
+  auto tmp = ::tvarant::ops::rsqrt(self);
+  ::tvarant::ops::_copy_from(tmp, out, false);
   return out;
 }
 
@@ -269,7 +269,7 @@ at::Tensor& sub_out(
     const at::Scalar& alpha,
     at::Tensor& out) {
   auto tmp = sub_tensor(self, other, alpha);
-  _copy_from(tmp, out, false);
+  ::tvarant::ops::_copy_from(tmp, out, false);
   return out;
 }
 
