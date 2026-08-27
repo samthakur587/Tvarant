@@ -23,6 +23,9 @@ theme:
   features:
     - navigation.tabs
     - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - toc.follow
     - content.code.copy
     - search.suggest
 
@@ -42,8 +45,46 @@ nav:
       - Contributing: contributing.md
   - API:
       - Overview: api/index.md
-      - torch.tvarant: api/torch.md
-      - Supported ops: api/ops.md
+      - torch.tvarant:
+          - api/torch/index.md
+          - is_available: api/torch/is_available.md
+          - is_initialized: api/torch/is_initialized.md
+          - device_count: api/torch/device_count.md
+          - current_device: api/torch/current_device.md
+          - set_device: api/torch/set_device.md
+          - synchronize: api/torch/synchronize.md
+          - backend: api/torch/backend.md
+          - manual_seed: api/torch/manual_seed.md
+          - manual_seed_all: api/torch/manual_seed_all.md
+          - get_rng_state: api/torch/get_rng_state.md
+          - set_rng_state: api/torch/set_rng_state.md
+      - compiler:
+          - api/compiler/index.md
+          - compile: api/compiler/compile.md
+          - compile_fx: api/compiler/compile_fx.md
+          - trace_module: api/compiler/trace_module.md
+          - fuse_gemm_epilogue: api/compiler/fuse_gemm_epilogue.md
+          - fuse_pointwise: api/compiler/fuse_pointwise.md
+          - register: api/compiler/register.md
+          - TvarantTracer: api/compiler/TvarantTracer.md
+      - Supported ops:
+          - api/ops/index.md
+          - empty: api/ops/empty.md
+          - zeros / ones / full: api/ops/zeros.md
+          - clone / contiguous: api/ops/clone.md
+          - add: api/ops/add.md
+          - mul: api/ops/mul.md
+          - sub: api/ops/sub.md
+          - relu: api/ops/relu.md
+          - silu: api/ops/silu.md
+          - unary: api/ops/neg.md
+          - mm family: api/ops/mm.md
+          - linear: api/ops/linear.md
+          - softmax: api/ops/softmax.md
+          - layer_norm: api/ops/layer_norm.md
+          - embedding: api/ops/embedding.md
+          - linear_act: api/ops/linear_act.md
+          - pointwise: api/ops/pointwise.md
       - Kernels: api/kernels.md
       - C++: api/cpp.md
       - Operations (redirect): operations.md
@@ -54,6 +95,8 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.highlight
   - pymdownx.inlinehilite
+  - pymdownx.arithmatex:
+      generic: true
   - toc:
       permalink: true
 
@@ -64,9 +107,17 @@ plugins:
         python:
           options:
             docstring_style: google
-            show_source: false
+            show_source: true
+            show_signature: true
+            show_signature_annotations: true
             separate_signature: true
             merge_init_into_class: true
+            docstring_section_style: table
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 extra:
   social:

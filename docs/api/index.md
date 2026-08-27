@@ -1,12 +1,24 @@
 # API reference
 
-This section mirrors a PyTorch-style API layout for **torch_tvarant**.
+PyTorch-style reference for **torch_tvarant**. Each entry is a dedicated page
+with signature, parameters, and examples.
 
-| Page | Contents |
-|---|---|
-| [torch.tvarant](torch.md) | Device module helpers + Python package / compiler (auto-generated) |
-| [Supported ops](ops.md) | ATen and custom ops registered for `PrivateUse1` |
-| [Kernels](kernels.md) | Host and OpenCL kernel catalog |
-| [C++](cpp.md) | Extension layout, `TORCH_LIBRARY_IMPL`, adding ops |
+## torch.tvarant
 
-Unimplemented ATen ops fall back to CPU; see [Supported ops](ops.md).
+Device module — [`torch.tvarant` overview](torch/index.md)
+
+- [`is_available`](torch/is_available.md) · [`device_count`](torch/device_count.md) · [`backend`](torch/backend.md)
+- [`set_device`](torch/set_device.md) · [`synchronize`](torch/synchronize.md)
+- [`manual_seed`](torch/manual_seed.md) · [`get_rng_state`](torch/get_rng_state.md) · …
+
+## torch_tvarant.compiler
+
+- [`compile`](compiler/compile.md) · [`compile_fx`](compiler/compile_fx.md)
+- [`trace_module`](compiler/trace_module.md) · [`register`](compiler/register.md)
+- [Compiler overview](compiler/index.md)
+
+## Supported ops
+
+- [Ops index](ops/index.md) — `relu`, `add`, `mm`, `linear`, `linear_act`, …
+- [Kernels](kernels.md) — host / OpenCL catalog
+- [C++](cpp.md) — extension layout & `TORCH_LIBRARY_IMPL`
