@@ -34,7 +34,8 @@ pip install -e .
 pytest tests/ -v
 ```
 
-See [Getting Started](docs/getting-started.md) for full install instructions.
+See [Installation](docs/install.md) and [Getting Started](docs/getting-started.md).
+API: [docs/api](docs/api/index.md).
 
 ## Features
 

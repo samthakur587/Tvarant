@@ -27,14 +27,26 @@ theme:
     - search.suggest
 
 nav:
-  - Home: index.md
-  - Getting Started: getting-started.md
-  - Architecture: architecture.md
-  - JIT Compiler: jit-compiler.md
-  - Operations: operations.md
-  - FPGA / OpenCL: fpga-opencl.md
-  - Roadmap: roadmap.md
-  - Contributing: contributing.md
+  - Get Started:
+      - Home: index.md
+      - Installation: install.md
+      - Getting Started: getting-started.md
+  - Tutorials:
+      - Getting Started: getting-started.md
+  - How-Tos:
+      - JIT Compiler: jit-compiler.md
+      - FPGA / OpenCL: fpga-opencl.md
+  - Notes:
+      - Architecture: architecture.md
+      - Roadmap: roadmap.md
+      - Contributing: contributing.md
+  - API:
+      - Overview: api/index.md
+      - torch.tvarant: api/torch.md
+      - Supported ops: api/ops.md
+      - Kernels: api/kernels.md
+      - C++: api/cpp.md
+      - Operations (redirect): operations.md
 
 markdown_extensions:
   - admonition
@@ -47,6 +59,14 @@ markdown_extensions:
 
 plugins:
   - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: false
+            separate_signature: true
+            merge_init_into_class: true
 
 extra:
   social:

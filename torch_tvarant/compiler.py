@@ -49,6 +49,7 @@ class TvarantTracer(torch.fx.Tracer):
 
 
 def trace_module(module: nn.Module) -> torch.fx.GraphModule:
+    """FX-trace ``module``, inlining Linear / common activations."""
     tracer = TvarantTracer()
     graph = tracer.trace(module)
     return torch.fx.GraphModule(module, graph)
