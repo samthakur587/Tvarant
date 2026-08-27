@@ -12,6 +12,12 @@ void relu_f32(const float* in, float* out, int64_t n);
 void silu_f32(const float* in, float* out, int64_t n);
 void scale_f32(const float* in, float* out, int64_t n, float scale);
 void add_scalar_f32(const float* in, float* out, int64_t n, float scalar);
+void neg_f32(const float* in, float* out, int64_t n);
+void abs_f32(const float* in, float* out, int64_t n);
+void exp_f32(const float* in, float* out, int64_t n);
+void exp2_f32(const float* in, float* out, int64_t n);
+void sqrt_f32(const float* in, float* out, int64_t n);
+void rsqrt_f32(const float* in, float* out, int64_t n);
 
 void gemm_bias_act_f32(
     const float* a,

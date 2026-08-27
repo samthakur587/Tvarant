@@ -6,6 +6,48 @@ __kernel void silu_kernel(__global const float* in, __global float* out, const i
   }
 }
 
+__kernel void neg_kernel(__global const float* in, __global float* out, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) {
+    out[i] = -in[i];
+  }
+}
+
+__kernel void abs_kernel(__global const float* in, __global float* out, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) {
+    out[i] = fabs(in[i]);
+  }
+}
+
+__kernel void exp_kernel(__global const float* in, __global float* out, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) {
+    out[i] = exp(in[i]);
+  }
+}
+
+__kernel void exp2_kernel(__global const float* in, __global float* out, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) {
+    out[i] = exp2(in[i]);
+  }
+}
+
+__kernel void sqrt_kernel(__global const float* in, __global float* out, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) {
+    out[i] = sqrt(in[i]);
+  }
+}
+
+__kernel void rsqrt_kernel(__global const float* in, __global float* out, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) {
+    out[i] = rsqrt(in[i]);
+  }
+}
+
 __kernel void scale_kernel(
     __global const float* in,
     __global float* out,

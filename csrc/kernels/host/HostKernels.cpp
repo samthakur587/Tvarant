@@ -61,6 +61,42 @@ void add_scalar_f32(const float* in, float* out, int64_t n, float scalar) {
   }
 }
 
+void neg_f32(const float* in, float* out, int64_t n) {
+  for (int64_t i = 0; i < n; ++i) {
+    out[i] = -in[i];
+  }
+}
+
+void abs_f32(const float* in, float* out, int64_t n) {
+  for (int64_t i = 0; i < n; ++i) {
+    out[i] = std::fabs(in[i]);
+  }
+}
+
+void exp_f32(const float* in, float* out, int64_t n) {
+  for (int64_t i = 0; i < n; ++i) {
+    out[i] = std::exp(in[i]);
+  }
+}
+
+void exp2_f32(const float* in, float* out, int64_t n) {
+  for (int64_t i = 0; i < n; ++i) {
+    out[i] = std::exp2(in[i]);
+  }
+}
+
+void sqrt_f32(const float* in, float* out, int64_t n) {
+  for (int64_t i = 0; i < n; ++i) {
+    out[i] = std::sqrt(in[i]);
+  }
+}
+
+void rsqrt_f32(const float* in, float* out, int64_t n) {
+  for (int64_t i = 0; i < n; ++i) {
+    out[i] = 1.f / std::sqrt(in[i]);
+  }
+}
+
 void gemm_bias_act_f32(
     const float* a,
     const float* b,

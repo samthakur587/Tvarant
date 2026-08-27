@@ -133,6 +133,24 @@ class CpuSimRuntime final : public TvarantRuntime {
     } else if (name == "silu_kernel") {
       host::silu_f32(
           static_cast<const float*>(p.src0), static_cast<float*>(p.dst), p.numel);
+    } else if (name == "neg_kernel") {
+      host::neg_f32(
+          static_cast<const float*>(p.src0), static_cast<float*>(p.dst), p.numel);
+    } else if (name == "abs_kernel") {
+      host::abs_f32(
+          static_cast<const float*>(p.src0), static_cast<float*>(p.dst), p.numel);
+    } else if (name == "exp_kernel") {
+      host::exp_f32(
+          static_cast<const float*>(p.src0), static_cast<float*>(p.dst), p.numel);
+    } else if (name == "exp2_kernel") {
+      host::exp2_f32(
+          static_cast<const float*>(p.src0), static_cast<float*>(p.dst), p.numel);
+    } else if (name == "sqrt_kernel") {
+      host::sqrt_f32(
+          static_cast<const float*>(p.src0), static_cast<float*>(p.dst), p.numel);
+    } else if (name == "rsqrt_kernel") {
+      host::rsqrt_f32(
+          static_cast<const float*>(p.src0), static_cast<float*>(p.dst), p.numel);
     } else if (name == "scale_kernel") {
       host::scale_f32(
           static_cast<const float*>(p.src0),
