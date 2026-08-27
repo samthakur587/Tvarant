@@ -49,7 +49,15 @@ class TvarantTracer(torch.fx.Tracer):
 
 
 def trace_module(module: nn.Module) -> torch.fx.GraphModule:
-    """FX-trace ``module``, inlining Linear / common activations."""
+    """FX-trace ``module``, inlining Linear / common activations.
+
+    Args:
+        module: ``torch.nn.Module`` to trace.
+
+    Returns:
+        torch.fx.GraphModule: Graph with inlined leaf modules so the fuser
+        sees ATen ops (``linear``, ``relu``, …).
+    """
     tracer = TvarantTracer()
     graph = tracer.trace(module)
     return torch.fx.GraphModule(module, graph)
@@ -315,7 +323,17 @@ def fuse_pointwise(gm: torch.fx.GraphModule) -> torch.fx.GraphModule:
 
 
 def compile_fx(gm: torch.fx.GraphModule, example_inputs: Any = None) -> torch.fx.GraphModule:
-    """Optimize a captured FX graph for Tvarant."""
+    """Optimize a captured FX graph for Tvarant.
+
+    Runs GEMM-epilogue fusion then pointwise fusion.
+
+    Args:
+        gm: FX graph module to optimize in place / recompile.
+        example_inputs: Unused; accepted for Dynamo backend compatibility.
+
+    Returns:
+        torch.fx.GraphModule: Fused graph ready to run on ``device="tvarant"``.
+    """
     _ = example_inputs
     gm = fuse_gemm_epilogue(gm)
     gm = fuse_pointwise(gm)
@@ -330,7 +348,11 @@ _registered = False
 
 
 def register() -> None:
-    """Register ``backend="tvarant"`` with torch.compile / Dynamo."""
+    """Register ``backend="tvarant"`` with ``torch.compile`` / Dynamo.
+
+    Safe to call multiple times; subsequent calls are no-ops. Invoked
+    automatically on ``import torch_tvarant.compiler``.
+    """
     global _registered
     if _registered:
         return
@@ -357,6 +379,18 @@ def compile(module: torch.nn.Module, *, dynamic: bool = False) -> Callable:
 
     Prefers FX tracing that inlines Linear / activations (stable on this custom
     device). Falls back to ``torch.compile(..., backend="tvarant")``.
+
+    Args:
+        module: Module to optimize. Switched to ``eval()`` mode.
+        dynamic: Forwarded to ``torch.compile`` on the fallback path only.
+
+    Returns:
+        Callable: Callable module / optimized callable producing the same
+        outputs as ``module`` on ``device="tvarant"``.
+
+    Examples:
+        >>> compiled = torch_tvarant.compiler.compile(model)
+        >>> y = compiled(x)
     """
     module.eval()
     try:
