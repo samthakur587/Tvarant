@@ -95,7 +95,12 @@ jobs:
           cache: pip
 
       - name: Install docs dependencies
-        run: pip install mkdocs-material mkdocs
+        run: |
+          pip install mkdocs-material mkdocs "mkdocstrings[python]>=0.25"
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
 
       - name: Build MkDocs site
+        env:
+          MKDOCS_BUILD: "1"
+          TORCH_DEVICE_BACKEND_AUTOLOAD: "0"
         run: mkdocs build --strict

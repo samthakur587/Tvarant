@@ -50,8 +50,19 @@ torch_tvarant = "torch_tvarant:_autoload"
 
 [project.optional-dependencies]
 dev = ["pytest>=7", "ruff>=0.4", "build>=1.0"]
-docs = ["mkdocs>=1.5", "mkdocs-material>=9"]
-all = ["pytest>=7", "ruff>=0.4", "build>=1.0", "mkdocs>=1.5", "mkdocs-material>=9"]
+docs = [
+  "mkdocs>=1.5",
+  "mkdocs-material>=9",
+  "mkdocstrings[python]>=0.25",
+]
+all = [
+  "pytest>=7",
+  "ruff>=0.4",
+  "build>=1.0",
+  "mkdocs>=1.5",
+  "mkdocs-material>=9",
+  "mkdocstrings[python]>=0.25",
+]
 
 [tool.setuptools.packages.find]
 include = ["torch_tvarant", "torch_tvarant.*"]

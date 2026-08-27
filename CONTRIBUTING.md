@@ -45,8 +45,12 @@ TVARANT_BACKEND=opencl pytest tests/test_opencl.py -v
 
 ```bash
 pip install -e ".[docs]"
-mkdocs serve
+# Optional: CPU torch so live imports work
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+MKDOCS_BUILD=1 TORCH_DEVICE_BACKEND_AUTOLOAD=0 mkdocs serve
 ```
+
+`MKDOCS_BUILD=1` loads a stub `_C` when the native extension is not built (for mkdocstrings).
 
 Open http://127.0.0.1:8000 to preview the documentation site.
 

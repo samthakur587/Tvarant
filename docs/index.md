@@ -27,12 +27,13 @@ y = torch.nn.functional.relu(x @ w)
 
 | Resource | Link |
 |---|---|
-| GitHub repository | [samthakur587/Tvarant](https://github.com/samthakur587/Tvarant) |
+| Installation | [install.md](install.md) |
 | Getting started | [getting-started.md](getting-started.md) |
+| API reference | [api/index.md](api/index.md) |
 | Architecture | [architecture.md](architecture.md) |
 | JIT compiler | [jit-compiler.md](jit-compiler.md) |
 | Contributing | [contributing.md](contributing.md) |
-| Issue tracker | [GitHub Issues](https://github.com/samthakur587/Tvarant/issues) |
+| GitHub | [samthakur587/Tvarant](https://github.com/samthakur587/Tvarant) |
 | Changelog | [CHANGELOG.md](https://github.com/samthakur587/Tvarant/blob/main/CHANGELOG.md) |
 
 ## License
