@@ -47,8 +47,8 @@ See [JIT Compiler](jit-compiler.md) for fusion details.
 
 | Topic | Page |
 |---|---|
-| Device helpers | [torch.tvarant](api/torch.md) |
-| Supported ops | [Supported ops](api/ops.md) |
+| Device helpers | [torch.tvarant](api/torch/index.md) |
+| Supported ops | [Supported ops](api/ops/index.md) |
 | Kernels | [Kernels](api/kernels.md) |
 | C++ extension | [C++ API](api/cpp.md) |
 | FPGA path | [FPGA / OpenCL](fpga-opencl.md) |

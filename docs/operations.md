@@ -2,6 +2,6 @@
 
 This page moved into the API reference:
 
-- [Supported ops](api/ops.md)
+- [Supported ops](api/ops/index.md)
 - [Kernels](api/kernels.md)
 - [C++ extension](api/cpp.md)
