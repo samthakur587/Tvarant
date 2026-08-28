@@ -34,6 +34,10 @@ __kernel void fill_kernel(__global float* out, const float value, const int n) {
   const int i = get_global_id(0);
   if (i < n) out[i] = value;
 }
+__kernel void eye_kernel(__global float* out, const int rows, const int cols, const int diag) {
+  const int i = get_global_id(0);
+  if (i < diag) out[i * cols + i] = 1.f;
+}
 __kernel void copy_kernel(__global float* dst, __global const float* src, const int n) {
   const int i = get_global_id(0);
   if (i < n) dst[i] = src[i];
@@ -256,6 +260,7 @@ class OpenCLRuntime final : public TvarantRuntime {
       kernels_[name] = k;
     };
     load("fill_kernel");
+    load("eye_kernel");
     load("copy_kernel");
     load("add_kernel");
     load("mul_kernel");
@@ -404,6 +409,11 @@ class OpenCLRuntime final : public TvarantRuntime {
     if (name == "fill_kernel") {
       set_buf(p.dst);
       set_float(p.scalar);
+      set_int(n);
+    } else if (name == "eye_kernel") {
+      set_buf(p.dst);
+      set_int(static_cast<int>(p.m));
+      set_int(static_cast<int>(p.n));
       set_int(n);
     } else if (name == "copy_kernel") {
       set_buf(p.dst);

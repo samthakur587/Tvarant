@@ -1,3 +1,10 @@
+__kernel void eye_kernel(__global float* out, const int rows, const int cols, const int diag) {
+  const int i = get_global_id(0);
+  if (i < diag) {
+    out[i * cols + i] = 1.f;
+  }
+}
+
 __kernel void silu_kernel(__global const float* in, __global float* out, const int n) {
   const int i = get_global_id(0);
   if (i < n) {
