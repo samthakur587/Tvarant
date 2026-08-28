@@ -20,6 +20,12 @@ void fill_f32(float* out, float value, int64_t n) {
   }
 }
 
+void eye_f32(float* out, int64_t rows, int64_t cols, int64_t diag) {
+  for (int64_t i = 0; i < diag; ++i) {
+    out[i * cols + i] = 1.f;
+  }
+}
+
 void copy_f32(float* dst, const float* src, int64_t n) {
   std::memcpy(dst, src, static_cast<size_t>(n) * sizeof(float));
 }

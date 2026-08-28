@@ -5,9 +5,11 @@
 #include <ATen/ATen.h>
 #include <torch/library.h>
 
+#include <algorithm>
+
 namespace tvarant::ops {
 
-// ---- factory (#16–#18) ----
+// ---- factory (#16–#18, #23) ----
 
 at::Tensor zeros(
     c10::IntArrayRef size,
@@ -93,6 +95,42 @@ at::Tensor full_like(
       self.sizes(), dtype, layout, device, pin_memory_opt, memory_format_opt);
   fill__scalar(t, fill_value);
   return t;
+}
+
+at::Tensor eye_m(
+    int64_t n,
+    int64_t m,
+    std::optional<c10::ScalarType> dtype_opt,
+    std::optional<c10::Layout> layout_opt,
+    std::optional<c10::Device> device_opt,
+    std::optional<bool> pin_memory_opt) {
+  auto out = zeros({n, m}, dtype_opt, layout_opt, device_opt, pin_memory_opt);
+  const int64_t diag = std::min(n, m);
+  if (diag == 0) {
+    return out;
+  }
+  if (out.scalar_type() == at::kFloat && out.is_contiguous()) {
+    LaunchParams p;
+    p.kernel = "eye_kernel";
+    p.dst = out.data_ptr();
+    p.m = n;
+    p.n = m;
+    p.numel = diag;
+    ::tvarant::runtime().launch(p);
+    return out;
+  }
+  auto cpu = at::eye(
+      n, m, at::TensorOptions().dtype(out.scalar_type()).device(at::kCPU));
+  return ::tvarant::ops::_copy_from(cpu, out, false);
+}
+
+at::Tensor eye(
+    int64_t n,
+    std::optional<c10::ScalarType> dtype_opt,
+    std::optional<c10::Layout> layout_opt,
+    std::optional<c10::Device> device_opt,
+    std::optional<bool> pin_memory_opt) {
+  return eye_m(n, n, dtype_opt, layout_opt, device_opt, pin_memory_opt);
 }
 
 // ---- clone / contiguous (#19–#20) ----
@@ -343,6 +381,25 @@ at::Tensor wrap_full_like(
       self, fill_value, dtype, layout, device, pin_memory, memory_format);
 }
 
+at::Tensor wrap_eye(
+    int64_t n,
+    std::optional<c10::ScalarType> dtype,
+    std::optional<c10::Layout> layout,
+    std::optional<c10::Device> device,
+    std::optional<bool> pin_memory) {
+  return tvarant::ops::eye(n, dtype, layout, device, pin_memory);
+}
+
+at::Tensor wrap_eye_m(
+    int64_t n,
+    int64_t m,
+    std::optional<c10::ScalarType> dtype,
+    std::optional<c10::Layout> layout,
+    std::optional<c10::Device> device,
+    std::optional<bool> pin_memory) {
+  return tvarant::ops::eye_m(n, m, dtype, layout, device, pin_memory);
+}
+
 at::Tensor wrap_clone(const at::Tensor& self, std::optional<c10::MemoryFormat> memory_format) {
   return tvarant::ops::clone(self, memory_format);
 }
@@ -366,6 +423,8 @@ TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {
   m.impl("ones_like", TORCH_FN(wrap_ones_like));
   m.impl("full", TORCH_FN(wrap_full));
   m.impl("full_like", TORCH_FN(wrap_full_like));
+  m.impl("eye", TORCH_FN(wrap_eye));
+  m.impl("eye.m", TORCH_FN(wrap_eye_m));
   m.impl("clone", TORCH_FN(wrap_clone));
   m.impl("contiguous", TORCH_FN(wrap_contiguous));
   m.impl("neg", TORCH_FN(tvarant::ops::neg));

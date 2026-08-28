@@ -111,6 +111,9 @@ class CpuSimRuntime final : public TvarantRuntime {
     const std::string name(p.kernel);
     if (name == "fill_kernel") {
       host::fill_f32(static_cast<float*>(p.dst), p.scalar, p.numel);
+    } else if (name == "eye_kernel") {
+      host::eye_f32(
+          static_cast<float*>(p.dst), p.m, p.n, p.numel);
     } else if (name == "copy_kernel") {
       host::copy_f32(
           static_cast<float*>(p.dst), static_cast<const float*>(p.src0), p.numel);
