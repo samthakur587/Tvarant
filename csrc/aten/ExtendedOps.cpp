@@ -5,9 +5,24 @@
 #include <ATen/ATen.h>
 #include <torch/library.h>
 
-namespace tvarant::ops {
+#include <cmath>
 
-// ---- factory (#16–#18) ----
+namespace tvarant::ops {
+namespace {
+
+int64_t arange_length(double start, double end, double step) {
+  TORCH_CHECK(step != 0, "step must be nonzero");
+  if (step > 0) {
+    TORCH_CHECK(end >= start, "upper bound and larger bound inconsistent with step sign");
+  } else {
+    TORCH_CHECK(end <= start, "upper bound and larger bound inconsistent with step sign");
+  }
+  return static_cast<int64_t>(std::ceil((end - start) / step));
+}
+
+}  // namespace
+
+// ---- factory (#16–#18, #21–#22) ----
 
 at::Tensor zeros(
     c10::IntArrayRef size,
@@ -93,6 +108,82 @@ at::Tensor full_like(
       self.sizes(), dtype, layout, device, pin_memory_opt, memory_format_opt);
   fill__scalar(t, fill_value);
   return t;
+}
+
+at::Tensor arange_start_step(
+    const at::Scalar& start,
+    const at::Scalar& end,
+    const at::Scalar& step,
+    std::optional<c10::ScalarType> dtype_opt,
+    std::optional<c10::Layout> layout_opt,
+    std::optional<c10::Device> device_opt,
+    std::optional<bool> pin_memory_opt) {
+  const double s = start.toDouble();
+  const double e = end.toDouble();
+  const double st = step.toDouble();
+  const int64_t n = arange_length(s, e, st);
+  auto out = empty_memory_format(
+      {n}, dtype_opt, layout_opt, device_opt, pin_memory_opt, std::nullopt);
+  if (n == 0) {
+    return out;
+  }
+  if (out.scalar_type() == at::kFloat && out.is_contiguous()) {
+    LaunchParams p;
+    p.kernel = "arange_kernel";
+    p.dst = out.data_ptr();
+    p.scalar = static_cast<float>(s);
+    p.alpha = static_cast<float>(st);
+    p.numel = n;
+    ::tvarant::runtime().launch(p);
+    return out;
+  }
+  auto cpu = at::arange(s, e, st, at::TensorOptions().dtype(out.scalar_type()).device(at::kCPU));
+  return ::tvarant::ops::_copy_from(cpu, out, false);
+}
+
+at::Tensor arange(
+    const at::Scalar& end,
+    std::optional<c10::ScalarType> dtype_opt,
+    std::optional<c10::Layout> layout_opt,
+    std::optional<c10::Device> device_opt,
+    std::optional<bool> pin_memory_opt) {
+  return arange_start_step(0, end, 1, dtype_opt, layout_opt, device_opt, pin_memory_opt);
+}
+
+at::Tensor linspace(
+    const at::Scalar& start,
+    const at::Scalar& end,
+    int64_t steps,
+    std::optional<c10::ScalarType> dtype_opt,
+    std::optional<c10::Layout> layout_opt,
+    std::optional<c10::Device> device_opt,
+    std::optional<bool> pin_memory_opt) {
+  TORCH_CHECK(steps >= 0, "number of steps must be non-negative");
+  const double s = start.toDouble();
+  const double e = end.toDouble();
+  auto out = empty_memory_format(
+      {steps}, dtype_opt, layout_opt, device_opt, pin_memory_opt, std::nullopt);
+  if (steps == 0) {
+    return out;
+  }
+  if (steps == 1) {
+    fill__scalar(out, start);
+    return out;
+  }
+  const double step = (e - s) / static_cast<double>(steps - 1);
+  if (out.scalar_type() == at::kFloat && out.is_contiguous()) {
+    LaunchParams p;
+    p.kernel = "arange_kernel";
+    p.dst = out.data_ptr();
+    p.scalar = static_cast<float>(s);
+    p.alpha = static_cast<float>(step);
+    p.numel = steps;
+    ::tvarant::runtime().launch(p);
+    return out;
+  }
+  auto cpu = at::linspace(
+      s, e, steps, at::TensorOptions().dtype(out.scalar_type()).device(at::kCPU));
+  return ::tvarant::ops::_copy_from(cpu, out, false);
 }
 
 // ---- clone / contiguous (#19–#20) ----
@@ -343,6 +434,38 @@ at::Tensor wrap_full_like(
       self, fill_value, dtype, layout, device, pin_memory, memory_format);
 }
 
+at::Tensor wrap_arange(
+    const at::Scalar& end,
+    std::optional<c10::ScalarType> dtype,
+    std::optional<c10::Layout> layout,
+    std::optional<c10::Device> device,
+    std::optional<bool> pin_memory) {
+  return tvarant::ops::arange(end, dtype, layout, device, pin_memory);
+}
+
+at::Tensor wrap_arange_start_step(
+    const at::Scalar& start,
+    const at::Scalar& end,
+    const at::Scalar& step,
+    std::optional<c10::ScalarType> dtype,
+    std::optional<c10::Layout> layout,
+    std::optional<c10::Device> device,
+    std::optional<bool> pin_memory) {
+  return tvarant::ops::arange_start_step(
+      start, end, step, dtype, layout, device, pin_memory);
+}
+
+at::Tensor wrap_linspace(
+    const at::Scalar& start,
+    const at::Scalar& end,
+    int64_t steps,
+    std::optional<c10::ScalarType> dtype,
+    std::optional<c10::Layout> layout,
+    std::optional<c10::Device> device,
+    std::optional<bool> pin_memory) {
+  return tvarant::ops::linspace(start, end, steps, dtype, layout, device, pin_memory);
+}
+
 at::Tensor wrap_clone(const at::Tensor& self, std::optional<c10::MemoryFormat> memory_format) {
   return tvarant::ops::clone(self, memory_format);
 }
@@ -366,6 +489,9 @@ TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {
   m.impl("ones_like", TORCH_FN(wrap_ones_like));
   m.impl("full", TORCH_FN(wrap_full));
   m.impl("full_like", TORCH_FN(wrap_full_like));
+  m.impl("arange", TORCH_FN(wrap_arange));
+  m.impl("arange.start_step", TORCH_FN(wrap_arange_start_step));
+  m.impl("linspace", TORCH_FN(wrap_linspace));
   m.impl("clone", TORCH_FN(wrap_clone));
   m.impl("contiguous", TORCH_FN(wrap_contiguous));
   m.impl("neg", TORCH_FN(tvarant::ops::neg));

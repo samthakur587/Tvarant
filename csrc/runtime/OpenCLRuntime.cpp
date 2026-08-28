@@ -34,6 +34,10 @@ __kernel void fill_kernel(__global float* out, const float value, const int n) {
   const int i = get_global_id(0);
   if (i < n) out[i] = value;
 }
+__kernel void arange_kernel(__global float* out, const float start, const float step, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) out[i] = start + (float)i * step;
+}
 __kernel void copy_kernel(__global float* dst, __global const float* src, const int n) {
   const int i = get_global_id(0);
   if (i < n) dst[i] = src[i];
@@ -256,6 +260,7 @@ class OpenCLRuntime final : public TvarantRuntime {
       kernels_[name] = k;
     };
     load("fill_kernel");
+    load("arange_kernel");
     load("copy_kernel");
     load("add_kernel");
     load("mul_kernel");
@@ -404,6 +409,11 @@ class OpenCLRuntime final : public TvarantRuntime {
     if (name == "fill_kernel") {
       set_buf(p.dst);
       set_float(p.scalar);
+      set_int(n);
+    } else if (name == "arange_kernel") {
+      set_buf(p.dst);
+      set_float(p.scalar);
+      set_float(p.alpha);
       set_int(n);
     } else if (name == "copy_kernel") {
       set_buf(p.dst);
