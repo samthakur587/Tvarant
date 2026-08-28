@@ -5,6 +5,7 @@
 namespace tvarant::host {
 
 void fill_f32(float* out, float value, int64_t n);
+void arange_f32(float* out, int64_t n, float start, float step);
 void copy_f32(float* dst, const float* src, int64_t n);
 void add_f32(const float* a, const float* b, float* out, int64_t n, float alpha);
 void mul_f32(const float* a, const float* b, float* out, int64_t n);

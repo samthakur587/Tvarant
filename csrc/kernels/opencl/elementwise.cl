@@ -1,3 +1,11 @@
+__kernel void arange_kernel(
+    __global float* out, const float start, const float step, const int n) {
+  const int i = get_global_id(0);
+  if (i < n) {
+    out[i] = start + (float)i * step;
+  }
+}
+
 __kernel void silu_kernel(__global const float* in, __global float* out, const int n) {
   const int i = get_global_id(0);
   if (i < n) {

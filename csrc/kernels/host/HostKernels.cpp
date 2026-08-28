@@ -20,6 +20,12 @@ void fill_f32(float* out, float value, int64_t n) {
   }
 }
 
+void arange_f32(float* out, int64_t n, float start, float step) {
+  for (int64_t i = 0; i < n; ++i) {
+    out[i] = start + static_cast<float>(i) * step;
+  }
+}
+
 void copy_f32(float* dst, const float* src, int64_t n) {
   std::memcpy(dst, src, static_cast<size_t>(n) * sizeof(float));
 }
